@@ -1,0 +1,24 @@
+Jangan lupa pakai venv
+chess\Scripts\Activate.ps1
+
+Library
+1. python-chess for logic
+2. pygame for interface
+
+Objectives :
+1. Create board (v)
+2. Create pieces (v)
+3. Pieces moving (v)
+4. Telling who's turn (v)
+5. Promotion for pawns (v)
+6. Castling (v)
+7. En passant (v)
+8. Checkmate warning/highlight king and attacker
+9. Lose screen
+10. Sounds
+11. The enemy aka AI
+12. multiplayer?
+13. Start menu?
+14. Color options (pink/white)
+15. Pieces taken. (v)
+16. Move history (v)
