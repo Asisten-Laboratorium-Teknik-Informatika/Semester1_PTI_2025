@@ -1,0 +1,140 @@
+import random
+import time
+import json
+import os
+
+def load_scores():
+    if not os.path.exists("scores.json"):
+        return {}
+    with open("scores.json", "r") as file:
+        return json.load(file)
+
+def save_score(nm, score):
+    scores = load_scores()
+    if nm in scores:
+        scores[nm] = max(scores[nm], score)
+    else:
+        scores[nm] = score
+
+    with open("scores.json", "w") as file:
+        json.dump(scores, file, indent=4)
+
+
+def generate_question(level):
+    # Level 1 & 2 → EASY
+    if level in [1, 2]:
+        a = random.randint(1, 10)
+        b = random.randint(1, 10)
+        op = random.choice(['+', '-', '*'])
+
+    # Level 3 & 4 → MEDIUM
+    elif level in [3, 4]:
+        op = random.choice(['+', '-', '*', '/'])
+        if op == '*':
+            b = random.randint(1, 12)
+            a = random.randint(10, 50) # agar angka perkalian tidak terlalu rumit
+        elif op == '/':
+            b = random.randint(1, 10) 
+            a = b * random.randint(2, 10)
+        else:
+            a = random.randint(5, 50)
+            b = random.randint(5, 50)
+        
+
+    # Level 5 → HARD
+    elif level == 5:
+        op = random.choice(['*', '/'])
+    
+        if op == '/':
+            hasil = random.randint(10, 50)
+            b = random.randint(2, 12)        
+            a = hasil * b                    
+        elif op == '*':
+            a = random.randint(5, 12)
+            b = random.randint(10, 100)
+
+    # hitung jawaban
+    if op == '+':  ans = a + b
+    elif op == '-': ans = a - b
+    elif op == '*': ans = a * b
+    elif op == '/': ans = a // b
+
+    return a, b, op, ans
+    
+TIME_LIMIT = {1:10, 2:10, 3:20, 4:20, 5:30}
+
+def ask_question(level):
+    a, b, op, correct = generate_question(level)
+
+    print(f"\nSoal: {a} {op} {b}")
+    print(f"Waktu tersisa: {TIME_LIMIT[level]} detik")
+
+    start = time.time()
+    try:
+        answer = float(input("Jawaban: "))
+    except:
+        answer = None
+    end = time.time()
+
+    # Cek waktu
+    if end - start > TIME_LIMIT[level]:
+        print("\033[31mUPS! Waktu habis!\033[0m")
+        print(f"Jawaban yang benar: \033[31m{correct}\033[0m")
+        return -5
+
+    # Cek jawaban
+    if answer == correct:
+        print("Terbaik!!")
+        return +10
+    else:
+        print(f"Salah! Jawaban yang benar: \033[31m{correct}\033[0m")
+        return -5
+
+def play_game(nm):
+    total = 0
+    
+    for level in range(1, 6): 
+        print(f"\n\033[38;5;186m=====================\033[0m")
+        print(f"\033[38;5;208m      LEVEL {level}\033[0m")
+        print(f"\033[38;5;186m=====================\033[0m")
+        print(" Selamat mengerjakan ")
+
+        for q in range(1, 6):
+            print(f"\n\033[34m**Soal ke-{q}**\033[0m")
+            total += ask_question(level)
+
+        print(f"\n\033[92m>> Skor sementara: {total}\033[0m")
+
+    print("\n\033[38;5;186m====================\033[0m")
+    print("\033[38;5;208m    GAME SELESAI!\033[0m")
+    print("\033[38;5;186m====================\033[0m")
+    print(f"Total Skor Anda: {total}")
+
+    save_score(nm, total)
+    print("Skor telah disimpan!")
+    print("Terima kasih sudah bermain ^_^")
+
+def input_pemain():
+    nm = input("Masukkan nama kamu: \n")
+    
+    scores = load_scores()
+    if nm in scores:
+        highscore = scores[nm]
+    else:
+        highscore = 0
+
+    print(f"\033[38;5;186m==================================\033[0m")
+    print(f"\033[38;5;208m       MATH CHALLENGE GAMES       \033[0m")
+    print(f"\033[34m          by kelompok 4            \033[0m")
+    print(f"\033[38;5;186m__________________________________\033[0m")
+    print(f"\033[34mWelcome, {nm}!\033[0m")
+    print(f"\033[38;5;208mHighscore kamu: {highscore}\033[0m")
+    print(f"\033[38;5;186m==================================\033[0m")
+
+    play = input("Ingin bermain (y/n)? ")
+    if play.lower() == 'y':
+        play_game(nm)
+    else:
+        print(f"See you, {nm} ^^")
+        
+input_pemain()
