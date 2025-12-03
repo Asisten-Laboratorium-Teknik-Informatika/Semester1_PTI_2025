@@ -1,0 +1,120 @@
+import tkinter as tk
+import random
+
+UKURAN_KOTAK = 50 
+JUMLAH_BARIS = 10 
+JUMLAH_KOLOM = 15 
+
+WARNA_TEMBOK = "#2c3e50" 
+WARNA_LANTAI = "#ecf0f1" 
+
+IKON_PEMAIN = "🐔"
+IKON_MUSUH = "🦊"
+IKON_PINTU = "🚪"
+
+jendela = tk.Tk()
+jendela.title("Chicken Escape - Proyek UAS")
+
+kanvas = tk.Canvas(jendela, width=JUMLAH_KOLOM*UKURAN_KOTAK, height=JUMLAH_BARIS*UKURAN_KOTAK, bg=WARNA_LANTAI)
+kanvas.pack()
+
+peta = [[" " for _ in range(JUMLAH_KOLOM)] for _ in range(JUMLAH_BARIS)]
+
+for b in range(JUMLAH_BARIS):
+    for k in range(JUMLAH_KOLOM):
+        if random.random() < 0.15:
+            peta[b][k] = "#"
+
+posisi_pemain = [JUMLAH_BARIS//2, 1]             
+posisi_musuh = [JUMLAH_BARIS//2, JUMLAH_KOLOM-2] 
+posisi_pintu = [1, JUMLAH_KOLOM-2]       
+
+for b, k in [posisi_pemain, posisi_musuh, posisi_pintu]:
+    peta[b][k] = " "
+
+def gambar_peta():
+    kanvas.delete("all") 
+    
+    for b in range(JUMLAH_BARIS):
+        for k in range(JUMLAH_KOLOM):
+            x1 = k * UKURAN_KOTAK
+            y1 = b * UKURAN_KOTAK
+            x2 = x1 + UKURAN_KOTAK
+            y2 = y1 + UKURAN_KOTAK
+            
+           
+            if peta[b][k] == "#":
+                kanvas.create_rectangle(x1, y1, x2, y2, fill=WARNA_TEMBOK, outline="gray")
+                kanvas.create_rectangle(x1+5, y1+5, x2-5, y2-5, outline="#34495e")
+            else:
+                kanvas.create_rectangle(x1, y1, x2, y2, fill=WARNA_LANTAI, outline="#bdc3c7")
+
+            tengah_x = x1 + UKURAN_KOTAK/2
+            tengah_y = y1 + UKURAN_KOTAK/2
+            
+            if [b, k] == posisi_pemain:
+                kanvas.create_text(tengah_x, tengah_y, text=IKON_PEMAIN, font=("Segoe UI Emoji", 24))
+            elif [b, k] == posisi_musuh:
+                kanvas.create_text(tengah_x, tengah_y, text=IKON_MUSUH, font=("Segoe UI Emoji", 24))
+            elif [b, k] == posisi_pintu:
+                kanvas.create_text(tengah_x, tengah_y, text=IKON_PINTU, font=("Segoe UI Emoji", 24))
+
+game_selesai = False
+
+def gerakkan_pemain(ubah_baris, ubah_kolom):
+    global game_selesai
+    if game_selesai: return
+    baris_baru = posisi_pemain[0] + ubah_baris
+    kolom_baru = posisi_pemain[1] + ubah_kolom
+
+    if 0 <= baris_baru < JUMLAH_BARIS and 0 <= kolom_baru < JUMLAH_KOLOM and peta[baris_baru][kolom_baru] != "#":
+        posisi_pemain[0], posisi_pemain[1] = baris_baru, kolom_baru
+        gambar_peta()
+        cek_status_menang_kalah()
+
+def gerakkan_musuh():
+    if game_selesai: return
+    musuh_baris, musuh_kolom = posisi_musuh
+    pemain_baris, pemain_kolom = posisi_pemain
+    
+    opsi_gerak = []
+    if pemain_baris < musuh_baris: opsi_gerak.append([-1, 0]) 
+    if pemain_baris > musuh_baris: opsi_gerak.append([1, 0])  
+    if pemain_kolom < musuh_kolom: opsi_gerak.append([0, -1])
+    if pemain_kolom > musuh_kolom: opsi_gerak.append([0, 1])
+    
+    random.shuffle(opsi_gerak)
+    
+    for ubah_b, ubah_k in opsi_gerak:
+        baris_baru, kolom_baru = musuh_baris + ubah_b, musuh_kolom + ubah_k
+        if 0 <= baris_baru < JUMLAH_BARIS and 0 <= kolom_baru < JUMLAH_KOLOM and peta[baris_baru][kolom_baru] != "#":
+            posisi_musuh[0], posisi_musuh[1] = baris_baru, kolom_baru
+            break
+            
+    gambar_peta()
+    cek_status_menang_kalah()
+    
+    if not game_selesai:
+        jendela.after(300, gerakkan_musuh)
+
+def cek_status_menang_kalah():
+    global game_selesai
+    
+    if posisi_pemain == posisi_pintu:
+        kanvas.create_text(JUMLAH_KOLOM*UKURAN_KOTAK/2, JUMLAH_BARIS*UKURAN_KOTAK/2, text="KAMU MENANG!", font=("Arial", 30, "bold"), fill="green")
+        game_selesai = True
+        
+    elif posisi_pemain == posisi_musuh:
+        kanvas.create_text(JUMLAH_KOLOM*UKURAN_KOTAK/2, JUMLAH_BARIS*UKURAN_KOTAK/2, text="TERTANGKAP!", font=("Arial", 30, "bold"), fill="red")
+        game_selesai = True
+
+def input_keyboard(event):
+    if event.keysym == "Up": gerakkan_pemain(-1, 0)   
+    if event.keysym == "Down": gerakkan_pemain(1, 0) 
+    if event.keysym == "Left": gerakkan_pemain(0, -1) 
+    if event.keysym == "Right": gerakkan_pemain(0, 1) 
+
+gambar_peta()
+jendela.bind("<Key>", input_keyboard) 
+jendela.after(500, gerakkan_musuh) 
+jendela.mainloop()                   
