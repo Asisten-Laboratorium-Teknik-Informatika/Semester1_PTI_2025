@@ -1,5 +1,3 @@
-# Program Pengunduh YouTube (Lengkap dengan Thumbnail dan Tema)
-# Variabel dan fungsi menggunakan Bahasa Indonesia
 
 import customtkinter as ctk
 from tkinter import filedialog
@@ -9,9 +7,7 @@ import requests
 from io import BytesIO
 import threading
 
-# =====================
 # KONFIGURASI AWAL GUI
-# =====================
 ctk.set_appearance_mode("System")  # Tema awal
 ctk.set_default_color_theme("blue")
 
@@ -19,26 +15,25 @@ jendela = ctk.CTk()
 jendela.title("Pengunduh YouTube Indonesia")
 jendela.geometry("700x600")
 
-# =====================
 # VARIABEL GLOBAL
-# =====================
+ 
 url_masukan = ctk.StringVar()
 folder_pilihan = ""
 kualitas_pilihan = ctk.StringVar(value="720p")
 format_pilihan = ctk.StringVar(value="mp4")
 
-# =====================
+ 
 # FUNGSI PILIH FOLDER
-# =====================
+ 
 def pilih_folder():
     global folder_pilihan
     folder_pilihan = filedialog.askdirectory()
     if folder_pilihan:
         label_folder.configure(text=f"Folder: {folder_pilihan}")
 
-# =====================
+ 
 # FUNGSI AMBIL THUMBNAIL
-# =====================
+ 
 def tampilkan_thumbnail(url):
     try:
         with yt_dlp.YoutubeDL({}) as ydl:
@@ -54,9 +49,9 @@ def tampilkan_thumbnail(url):
     except:
         label_thumbnail.configure(text="Thumbnail tidak dapat dimuat")
 
-# =====================
+ 
 # CALLBACK PROGRESS
-# =====================
+ 
 def proses_progress(d):
     if d['status'] == 'downloading':
         total = d.get('total_bytes', 0)
@@ -70,9 +65,9 @@ def proses_progress(d):
         progress_bar.set(1)
         label_status.configure(text="Selesai mengunduh.")
 
-# =====================
+ 
 # FUNGSI UNDUH
-# =====================
+ 
 def mulai_unduh():
     url = url_masukan.get()
     if not url:
@@ -118,15 +113,15 @@ def mulai_unduh():
 
     threading.Thread(target=jalankan).start()
 
-# =====================
+ 
 # FUNGSI UBAH TEMA
-# =====================
+ 
 def ubah_tema(pilihan):
     ctk.set_appearance_mode(pilihan)
 
-# =====================
+ 
 # GUI
-# =====================
+ 
 
 judul = ctk.CTkLabel(jendela, text="Pengunduh YouTube", font=("Arial", 22))
 judul.pack(pady=10)
